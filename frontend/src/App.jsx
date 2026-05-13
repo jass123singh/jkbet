@@ -5,6 +5,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Transactions from './pages/Transactions';
+import AddMoney from './pages/AddMoney';
+import AdminPayments from './pages/AdminPayments';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -34,6 +36,22 @@ function App() {
         element={
           <ProtectedRoute>
             <Transactions />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/add-money" 
+        element={
+          <ProtectedRoute>
+            <AddMoney />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/payments" 
+        element={
+          <ProtectedRoute>
+            <AdminPayments />
           </ProtectedRoute>
         } 
       />
