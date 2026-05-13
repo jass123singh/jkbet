@@ -32,7 +32,7 @@ async (req, res) => {
             draw = [...numbers]; // Start the draw with the player's numbers
         }
 
-        while(draw.length < 3){
+        while(draw.length < numbers.length){
             const num = Math.floor(Math.random() * 9) + 1;
             if(!draw.includes(num)){
                 draw.push(num);
