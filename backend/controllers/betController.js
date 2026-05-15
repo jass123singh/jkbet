@@ -73,17 +73,19 @@ async (req, res) => {
             matchCount
         });
 
-        user.balance -= amount;
-        if (winnings > 0) {
-            user.balance += winnings;
-        }
-        await user.save();
+        const netBalanceChange = winnings > 0 ? winnings - amount : -amount;
+        
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $inc: { balance: netBalanceChange } },
+            { new: true }
+        );
 
         res.json({
             draw,
             winnings,
             bet,
-            newBalance: user.balance,
+            newBalance: updatedUser.balance,
             status: matched ? 'won' : 'lost',
             payout: winnings,
             drawResult: draw.join(', ')
