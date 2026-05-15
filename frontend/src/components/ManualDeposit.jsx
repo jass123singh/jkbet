@@ -59,12 +59,24 @@ const ManualDeposit = () => {
       </div>
 
       <div style={{ marginBottom: '20px', padding: '15px', background: 'rgba(212, 175, 55, 0.1)', borderRadius: '10px', border: '1px solid var(--primary-color)' }}>
-        <h3 style={{ color: 'var(--primary-color)', marginBottom: '10px' }}>Payment Instructions</h3>
-        <p style={{ fontSize: '14px', marginBottom: '10px' }}>1. Pay using any UPI app to the ID below:</p>
-        <div style={{ background: 'rgba(0,0,0,0.5)', padding: '10px', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold', letterSpacing: '1px', marginBottom: '10px' }}>
-          yourupi@upi
+        <h3 style={{ color: 'var(--primary-color)', marginBottom: '15px', textAlign: 'center' }}>Payment Instructions</h3>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginBottom: '15px' }}>
+          <p style={{ fontSize: '14px', textAlign: 'center' }}>1. Scan the QR code or pay to the UPI ID below:</p>
+          
+          <img 
+            src="/qr.png" 
+            alt="Payment QR Code" 
+            style={{ width: '150px', height: '150px', borderRadius: '10px', objectFit: 'cover', border: '2px solid var(--primary-color)' }}
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+          
+          <div style={{ background: 'rgba(0,0,0,0.5)', padding: '10px 20px', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold', letterSpacing: '1px', fontSize: '16px', color: 'var(--primary-color)' }}>
+            6280696354@ptyes
+          </div>
         </div>
-        <p style={{ fontSize: '14px' }}>2. Enter the amount paid, UTR number, and upload screenshot link.</p>
+        
+        <p style={{ fontSize: '14px', textAlign: 'center' }}>2. Enter the amount paid, UTR number, and upload screenshot link.</p>
       </div>
 
       {successMsg && (

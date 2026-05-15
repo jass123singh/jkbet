@@ -39,7 +39,7 @@ function App() {
         } 
       />
       <Route 
-        path="/admin/deposits" 
+        path="/admin/manual-deposits" 
         element={
           <ProtectedRoute>
             <AdminManualDeposits />

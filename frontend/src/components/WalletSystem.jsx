@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { CreditCard, ArrowDownToLine, ArrowUpFromLine, Banknote } from 'lucide-react';
+import { CreditCard, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
 import api from '../services/api';
 import ManualDeposit from './ManualDeposit';
 
@@ -9,77 +9,6 @@ const WalletSystem = () => {
   const [activeTab, setActiveTab] = useState('deposit');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const loadRazorpay = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
-
-  const handlePayment = async () => {
-    if (!amount || isNaN(amount) || Number(amount) < 100) {
-      alert('Minimum deposit amount is ₹100');
-      return;
-    }
-
-    setLoading(true);
-    
-    try {
-      const isLoaded = await loadRazorpay();
-      if (!isLoaded) {
-        alert('Razorpay SDK failed to load. Are you online?');
-        setLoading(false);
-        return;
-      }
-
-      // Create order
-      const orderRes = await api.post('/payment/create-order', { amount: Number(amount) });
-      const { order, key_id } = orderRes.data;
-
-      const options = {
-        key: key_id,
-        amount: order.amount,
-        currency: "INR",
-        name: "JK BET",
-        description: "Wallet Deposit",
-        order_id: order.id,
-        handler: async function (response) {
-          try {
-            const depositRes = await api.post('/payment/deposit', { 
-              amount: Number(amount),
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature
-            });
-            updateBalance(depositRes.data.newBalance);
-            setAmount('');
-            alert('Payment successful! Balance updated.');
-          } catch (error) {
-            alert(error.response?.data?.message || 'Payment verification failed');
-          }
-        },
-        prefill: {
-          name: user.name,
-          email: user.email,
-          contact: "9999999999"
-        },
-        theme: {
-          color: "#d4af37"
-        }
-      };
-
-      const paymentObject = new window.Razorpay(options);
-      paymentObject.open();
-    } catch (error) {
-      alert(error.response?.data?.message || 'Payment initiation failed');
-    }
-    
-    setLoading(false);
-  };
 
   const handleWithdraw = async () => {
     if (!amount || isNaN(amount) || Number(amount) < 500) {
@@ -118,45 +47,38 @@ const WalletSystem = () => {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '4px', marginBottom: '20px', background: 'rgba(0,0,0,0.3)', padding: '6px', borderRadius: '14px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', background: 'rgba(0,0,0,0.3)', padding: '6px', borderRadius: '14px' }}>
         <button 
           className="btn" 
-          style={{ flex: 1, minWidth: '30%', padding: '12px 8px', fontSize: '14px', background: activeTab === 'deposit' ? 'var(--primary-color)' : 'transparent', color: activeTab === 'deposit' ? 'black' : 'white', borderRadius: '10px' }}
+          style={{ flex: 1, padding: '12px', background: activeTab === 'deposit' ? 'var(--primary-color)' : 'transparent', color: activeTab === 'deposit' ? 'black' : 'white', borderRadius: '10px' }}
           onClick={() => setActiveTab('deposit')}
         >
-          <ArrowDownToLine size={16} /> Online
+          <ArrowDownToLine size={16} /> Deposit
         </button>
         <button 
           className="btn" 
-          style={{ flex: 1, minWidth: '30%', padding: '12px 8px', fontSize: '14px', background: activeTab === 'manual-deposit' ? 'var(--primary-color)' : 'transparent', color: activeTab === 'manual-deposit' ? 'black' : 'white', borderRadius: '10px' }}
-          onClick={() => setActiveTab('manual-deposit')}
-        >
-          <Banknote size={16} /> Manual
-        </button>
-        <button 
-          className="btn" 
-          style={{ flex: 1, minWidth: '30%', padding: '12px 8px', fontSize: '14px', background: activeTab === 'withdraw' ? 'var(--primary-color)' : 'transparent', color: activeTab === 'withdraw' ? 'black' : 'white', borderRadius: '10px' }}
+          style={{ flex: 1, padding: '12px', background: activeTab === 'withdraw' ? 'var(--primary-color)' : 'transparent', color: activeTab === 'withdraw' ? 'black' : 'white', borderRadius: '10px' }}
           onClick={() => setActiveTab('withdraw')}
         >
           <ArrowUpFromLine size={16} /> Withdraw
         </button>
       </div>
 
-      {activeTab === 'manual-deposit' ? (
+      {activeTab === 'deposit' ? (
         <ManualDeposit />
       ) : (
         <div className="animate-fade-in">
           <input 
             type="number" 
             className="input-field" 
-            placeholder={`Amount (Min ${activeTab === 'deposit' ? '₹100' : '₹500'})`}
+            placeholder="Amount (Min ₹500)"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}
           />
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-            {[100, 500, 1000, 5000].map(val => (
+            {[500, 1000, 2000, 5000].map(val => (
               <button 
                 key={val} 
                 className="btn btn-secondary" 
@@ -171,10 +93,10 @@ const WalletSystem = () => {
           <button 
             className="btn btn-primary" 
             style={{ width: '100%', marginTop: '20px', padding: '16px', borderRadius: '16px' }}
-            onClick={activeTab === 'deposit' ? handlePayment : handleWithdraw}
+            onClick={handleWithdraw}
             disabled={loading}
           >
-            {loading ? 'Processing...' : (activeTab === 'deposit' ? 'Pay with Razorpay' : 'Request Withdrawal')}
+            {loading ? 'Processing...' : 'Request Withdrawal'}
           </button>
         </div>
       )}
