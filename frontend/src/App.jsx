@@ -6,7 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Transactions from './pages/Transactions';
 import ProtectedRoute from './components/ProtectedRoute';
-import AdminManualDeposits from './components/AdminManualDeposits';
+import AdminManualDeposits from './pages/AdminManualDeposits';
 import AddMoney from './pages/AddMoney';
 
 function App() {
