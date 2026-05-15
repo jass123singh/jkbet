@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Transactions from './pages/Transactions';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminManualDeposits from './components/AdminManualDeposits';
 
 function App() {
   return (
@@ -34,6 +35,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Transactions />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/deposits" 
+        element={
+          <ProtectedRoute>
+            <AdminManualDeposits />
           </ProtectedRoute>
         } 
       />

@@ -1,7 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { CreditCard, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
+import { CreditCard, ArrowDownToLine, ArrowUpFromLine, Banknote } from 'lucide-react';
 import api from '../services/api';
+import ManualDeposit from './ManualDeposit';
 
 const WalletSystem = () => {
   const { user, updateBalance } = useContext(AuthContext);
@@ -117,55 +118,66 @@ const WalletSystem = () => {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', background: 'rgba(0,0,0,0.3)', padding: '6px', borderRadius: '14px' }}>
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '20px', background: 'rgba(0,0,0,0.3)', padding: '6px', borderRadius: '14px', flexWrap: 'wrap' }}>
         <button 
           className="btn" 
-          style={{ flex: 1, padding: '12px', background: activeTab === 'deposit' ? 'var(--primary-color)' : 'transparent', color: activeTab === 'deposit' ? 'black' : 'white', borderRadius: '10px' }}
+          style={{ flex: 1, minWidth: '30%', padding: '12px 8px', fontSize: '14px', background: activeTab === 'deposit' ? 'var(--primary-color)' : 'transparent', color: activeTab === 'deposit' ? 'black' : 'white', borderRadius: '10px' }}
           onClick={() => setActiveTab('deposit')}
         >
-          <ArrowDownToLine size={16} /> Deposit
+          <ArrowDownToLine size={16} /> Online
         </button>
         <button 
           className="btn" 
-          style={{ flex: 1, padding: '12px', background: activeTab === 'withdraw' ? 'var(--primary-color)' : 'transparent', color: activeTab === 'withdraw' ? 'black' : 'white', borderRadius: '10px' }}
+          style={{ flex: 1, minWidth: '30%', padding: '12px 8px', fontSize: '14px', background: activeTab === 'manual-deposit' ? 'var(--primary-color)' : 'transparent', color: activeTab === 'manual-deposit' ? 'black' : 'white', borderRadius: '10px' }}
+          onClick={() => setActiveTab('manual-deposit')}
+        >
+          <Banknote size={16} /> Manual
+        </button>
+        <button 
+          className="btn" 
+          style={{ flex: 1, minWidth: '30%', padding: '12px 8px', fontSize: '14px', background: activeTab === 'withdraw' ? 'var(--primary-color)' : 'transparent', color: activeTab === 'withdraw' ? 'black' : 'white', borderRadius: '10px' }}
           onClick={() => setActiveTab('withdraw')}
         >
           <ArrowUpFromLine size={16} /> Withdraw
         </button>
       </div>
 
-      <div className="animate-fade-in">
-        <input 
-          type="number" 
-          className="input-field" 
-          placeholder={`Amount (Min ${activeTab === 'deposit' ? '₹100' : '₹500'})`}
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}
-        />
+      {activeTab === 'manual-deposit' ? (
+        <ManualDeposit />
+      ) : (
+        <div className="animate-fade-in">
+          <input 
+            type="number" 
+            className="input-field" 
+            placeholder={`Amount (Min ${activeTab === 'deposit' ? '₹100' : '₹500'})`}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}
+          />
 
-        <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-          {[100, 500, 1000, 5000].map(val => (
-            <button 
-              key={val} 
-              className="btn btn-secondary" 
-              style={{ flex: '1 1 20%', padding: '10px 4px', fontSize: '12px', borderRadius: '8px' }}
-              onClick={() => setAmount(val.toString())}
-            >
-              +₹{val}
-            </button>
-          ))}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+            {[100, 500, 1000, 5000].map(val => (
+              <button 
+                key={val} 
+                className="btn btn-secondary" 
+                style={{ flex: '1 1 20%', padding: '10px 4px', fontSize: '12px', borderRadius: '8px' }}
+                onClick={() => setAmount(val.toString())}
+              >
+                +₹{val}
+              </button>
+            ))}
+          </div>
+
+          <button 
+            className="btn btn-primary" 
+            style={{ width: '100%', marginTop: '20px', padding: '16px', borderRadius: '16px' }}
+            onClick={activeTab === 'deposit' ? handlePayment : handleWithdraw}
+            disabled={loading}
+          >
+            {loading ? 'Processing...' : (activeTab === 'deposit' ? 'Pay with Razorpay' : 'Request Withdrawal')}
+          </button>
         </div>
-
-        <button 
-          className="btn btn-primary" 
-          style={{ width: '100%', marginTop: '20px', padding: '16px', borderRadius: '16px' }}
-          onClick={activeTab === 'deposit' ? handlePayment : handleWithdraw}
-          disabled={loading}
-        >
-          {loading ? 'Processing...' : (activeTab === 'deposit' ? 'Pay with Razorpay' : 'Request Withdrawal')}
-        </button>
-      </div>
+      )}
     </div>
   );
 };

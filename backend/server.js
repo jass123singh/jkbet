@@ -34,6 +34,9 @@ require("./routes/paymentRoutes"));
 app.use("/api/bet",
 require("./routes/betRoutes"));
 
+app.use("/api/transactions",
+require("./routes/transactionRoutes"));
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
