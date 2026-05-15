@@ -8,11 +8,16 @@ import api from '../services/api';
 import { History, Trophy, TrendingUp } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, refreshUser } = useContext(AuthContext);
   const [betHistory, setBetHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Refresh user balance on dashboard load
+    if (refreshUser) {
+      refreshUser();
+    }
+    
     // Fetch bet history on mount
     const fetchHistory = async () => {
       try {

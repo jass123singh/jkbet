@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import { Check, X, Clock, RefreshCw } from 'lucide-react';
 import api from '../services/api';
 
 const AdminManualDeposits = () => {
+  const { refreshUser, user } = useContext(AuthContext);
   const [deposits, setDeposits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
@@ -30,6 +32,7 @@ const AdminManualDeposits = () => {
     try {
       await api.put(`/transactions/manual-deposit/approve/${id}`);
       fetchDeposits();
+      if (refreshUser) refreshUser();
     } catch (err) {
       alert(err.response?.data?.message || 'Approval failed');
     } finally {

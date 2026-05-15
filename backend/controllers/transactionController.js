@@ -75,11 +75,23 @@ exports.approveManualDeposit = async (req, res) => {
         await transaction.save();
 
         // Increment user balance
-        await User.findByIdAndUpdate(transaction.userId, {
-            $inc: { balance: transaction.amount }
-        });
+        const updatedUser = await User.findByIdAndUpdate(
+            transaction.userId, 
+            { $inc: { balance: Number(transaction.amount) } },
+            { new: true }
+        );
 
-        res.status(200).json({ message: "Deposit approved successfully", transaction });
+        if (!updatedUser) {
+            transaction.status = "pending"; // rollback
+            await transaction.save();
+            return res.status(404).json({ message: "User not found to update balance" });
+        }
+
+        res.status(200).json({ 
+            message: "Deposit approved successfully", 
+            transaction,
+            newBalance: updatedUser.balance 
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" });
