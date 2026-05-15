@@ -27,4 +27,8 @@ router.put("/manual-deposit/approve/:id", authMiddleware, transactionController.
 // TODO: Add admin protection middleware if available
 router.put("/manual-deposit/reject/:id", authMiddleware, transactionController.rejectManualDeposit);
 
+router.get("/manual-withdraws", authMiddleware, transactionController.getManualWithdraws);
+router.put("/manual-withdraw/approve/:id", authMiddleware, transactionController.approveManualWithdraw);
+router.put("/manual-withdraw/reject/:id", authMiddleware, transactionController.rejectManualWithdraw);
+
 module.exports = router;

@@ -255,3 +255,37 @@ h1, h2, h3, h4, h5, h6 {
 .nav-item.active svg {
   filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.6));
 }
+
+/* Toast Message */
+.toast-message {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  z-index: 9999;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  animation: fadeInDown 0.3s ease forwards;
+  max-width: 90%;
+}
+
+.toast-message.success {
+  background: rgba(0, 230, 118, 0.9);
+  color: #000;
+  border: 1px solid var(--success);
+}
+
+.toast-message.error {
+  background: rgba(255, 23, 68, 0.9);
+  color: #fff;
+  border: 1px solid var(--danger);
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translate(-50%, -20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}

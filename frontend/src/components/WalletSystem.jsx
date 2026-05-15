@@ -10,25 +10,51 @@ const WalletSystem = () => {
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("success");
+
+  const showMessage = (msg, type = 'success') => {
+    setMessage(msg);
+    setMessageType(type);
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const [accountHolderName, setAccountHolderName] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [ifscCode, setIfscCode] = useState('');
+
   const handleWithdraw = async () => {
     if (!amount || isNaN(amount) || Number(amount) < 500) {
-      alert('Minimum withdrawal amount is ₹500');
+      showMessage('Minimum withdrawal amount is ₹500', 'error');
+      return;
+    }
+
+    if (!accountHolderName || !accountNumber || !ifscCode) {
+      showMessage('All bank details are required', 'error');
       return;
     }
     
     if (Number(amount) > user.balance) {
-      alert('Insufficient balance');
+      showMessage('Insufficient balance', 'error');
       return;
     }
 
     setLoading(true);
     try {
-      const res = await api.post('/payment/withdraw', { amount: Number(amount) });
+      const res = await api.post('/payment/withdraw', { 
+        amount: Number(amount),
+        accountHolderName,
+        accountNumber,
+        ifscCode
+      });
       updateBalance(res.data.newBalance);
       setAmount('');
-      alert('Withdrawal request submitted successfully!');
+      setAccountHolderName('');
+      setAccountNumber('');
+      setIfscCode('');
+      showMessage('Withdrawal request submitted successfully!', 'success');
     } catch (error) {
-      alert(error.response?.data?.message || 'Withdrawal failed');
+      showMessage(error.response?.data?.message || 'Withdrawal failed', 'error');
     } finally {
       setLoading(false);
     }
@@ -36,6 +62,11 @@ const WalletSystem = () => {
 
   return (
     <div className="glass-panel" style={{ padding: '20px', borderRadius: '20px' }}>
+      {message && (
+        <div className={`toast-message ${messageType}`}>
+          {message}
+        </div>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '20px' }}>
           <CreditCard color="var(--primary-color)" size={20} /> Wallet
@@ -74,7 +105,34 @@ const WalletSystem = () => {
             placeholder="Amount (Min ₹500)"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}
+            style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold', marginBottom: '15px' }}
+          />
+
+          <input 
+            type="text" 
+            className="input-field" 
+            placeholder="Account Holder Name"
+            value={accountHolderName}
+            onChange={(e) => setAccountHolderName(e.target.value)}
+            style={{ marginBottom: '10px' }}
+          />
+
+          <input 
+            type="text" 
+            className="input-field" 
+            placeholder="Bank Account Number"
+            value={accountNumber}
+            onChange={(e) => setAccountNumber(e.target.value)}
+            style={{ marginBottom: '10px' }}
+          />
+
+          <input 
+            type="text" 
+            className="input-field" 
+            placeholder="IFSC Code"
+            value={ifscCode}
+            onChange={(e) => setIfscCode(e.target.value)}
+            style={{ marginBottom: '10px' }}
           />
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>

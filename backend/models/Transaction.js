@@ -25,6 +25,15 @@ const TransactionSchema = new mongoose.Schema({
     screenshot: {
         type: String
     },
+    accountHolderName: {
+        type: String
+    },
+    accountNumber: {
+        type: String
+    },
+    ifscCode: {
+        type: String
+    },
     status: {
         type: String,
         enum: ["pending", "success", "rejected"],

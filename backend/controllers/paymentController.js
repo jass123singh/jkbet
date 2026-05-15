@@ -51,39 +51,44 @@ exports.deposit = async (req, res) => {
 };
 
 exports.withdraw = async (req, res) => {
-
     try {
+        const { amount, accountHolderName, accountNumber, ifscCode } = req.body;
 
-        const { amount } = req.body;
+        if (!amount || !accountHolderName || !accountNumber || !ifscCode) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
 
-        const user =
-        await User.findById(req.user.id);
-
+        const user = await User.findById(req.user.id);
         if (!user) {
-
-            return res.status(404).json({
-
-                message: "User not found"
-            });
+            return res.status(404).json({ message: "User not found" });
         }
 
         if (user.balance < Number(amount)) {
-
-            return res.status(400).json({
-
-                message: "Insufficient balance"
-            });
+            return res.status(400).json({ message: "Insufficient balance" });
         }
 
-        user.balance -= Number(amount);
+        // Deduct balance
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.id,
+            { $inc: { balance: -Number(amount) } },
+            { new: true }
+        );
 
-        await user.save();
+        // Create transaction
+        const Transaction = require("../models/Transaction");
+        await Transaction.create({
+            userId: req.user.id,
+            amount: Number(amount),
+            type: "withdraw",
+            status: "pending",
+            accountHolderName,
+            accountNumber,
+            ifscCode
+        });
 
         res.json({
-
-            newBalance: user.balance,
-
-            message: "Withdrawal successful"
+            newBalance: updatedUser.balance,
+            message: "Withdrawal request submitted successfully"
         });
 
     } catch (error) {

@@ -22,6 +22,11 @@ const ManualDeposit = () => {
       return;
     }
 
+    if (Number(amount) < 200) {
+      setErrorMsg('Minimum deposit amount is ₹200');
+      return;
+    }
+
     if (!utr) {
       setErrorMsg('Please enter the UTR number');
       return;

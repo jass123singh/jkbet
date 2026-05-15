@@ -12,6 +12,15 @@ const Dashboard = () => {
   const [betHistory, setBetHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("success");
+
+  const showMessage = (msg, type = 'success') => {
+    setMessage(msg);
+    setMessageType(type);
+    setTimeout(() => setMessage(''), 3000);
+  };
+
   useEffect(() => {
     // Refresh user balance on dashboard load
     if (refreshUser) {
@@ -37,17 +46,22 @@ const Dashboard = () => {
     // Add new bet to top of history
     setBetHistory(prev => [betResult.bet, ...prev]);
     
-    // Show alert for win/loss (simple implementation)
+    // Show toast for win/loss
     if (betResult.win) {
-      alert(`🎉 YOU WON ₹${betResult.payout}! (Numbers matched: ${betResult.drawResult})`);
+      showMessage(`🎉 YOU WON ₹${betResult.payout}! (Numbers matched: ${betResult.drawResult})`, 'success');
     } else {
-      alert(`Draw Result: ${betResult.drawResult}. Better luck next time!`);
+      showMessage(`Draw Result: ${betResult.drawResult}. Better luck next time!`, 'error');
     }
   };
 
   return (
     <>
       <Navbar />
+      {message && (
+        <div className={`toast-message ${messageType}`}>
+          {message}
+        </div>
+      )}
       <div className="container page-content">
         
         {/* Welcome Section */}
@@ -84,7 +98,7 @@ const Dashboard = () => {
                 title="Mines" 
                 imageColor="rgba(0, 240, 255, 0.4)" 
                 description="Avoid the mines and cash out."
-                onPlay={() => alert('Coming Soon!')}
+                onPlay={() => showMessage('Coming Soon!', 'success')}
               />
             </div>
           </section>
