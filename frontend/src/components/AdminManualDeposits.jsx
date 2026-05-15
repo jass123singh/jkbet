@@ -106,7 +106,15 @@ const AdminManualDeposits = () => {
                     {dep.utr}
                   </td>
                   <td style={{ padding: '10px' }}>
-                    <a href={dep.screenshot} target="_blank" rel="noopener noreferrer" style={{ color: '#60a5fa', fontSize: '14px' }}>View</a>
+                    {dep.screenshot && (
+                      <a href={dep.screenshot.startsWith('http') ? dep.screenshot : `${import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')}${dep.screenshot}`} target="_blank" rel="noopener noreferrer">
+                        <img 
+                          src={dep.screenshot.startsWith('http') ? dep.screenshot : `${import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')}${dep.screenshot}`} 
+                          alt="Screenshot" 
+                          style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #444' }} 
+                        />
+                      </a>
+                    )}
                   </td>
                   <td style={{ padding: '10px' }}>
                     <span style={{ 

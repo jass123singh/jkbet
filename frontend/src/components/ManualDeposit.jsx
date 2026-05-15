@@ -7,7 +7,7 @@ const ManualDeposit = () => {
   const { user } = useContext(AuthContext);
   const [amount, setAmount] = useState('');
   const [utr, setUtr] = useState('');
-  const [screenshot, setScreenshot] = useState('');
+  const [screenshot, setScreenshot] = useState(null);
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -28,21 +28,30 @@ const ManualDeposit = () => {
     }
 
     if (!screenshot) {
-      setErrorMsg('Please provide a screenshot URL/text');
+      setErrorMsg('Please select a screenshot file');
       return;
     }
 
     setLoading(true);
     try {
-      await api.post('/transactions/manual-deposit', {
-        amount: Number(amount),
-        utr,
-        screenshot
+      const formData = new FormData();
+      formData.append('amount', amount);
+      formData.append('utr', utr);
+      formData.append('screenshot', screenshot);
+
+      await api.post('/transactions/manual-deposit', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
       setSuccessMsg('Payment submitted. Waiting for admin approval.');
       setAmount('');
       setUtr('');
-      setScreenshot('');
+      setScreenshot(null);
+      
+      // Reset file input value
+      const fileInput = document.getElementById('screenshot-upload');
+      if (fileInput) fileInput.value = '';
     } catch (error) {
       setErrorMsg(error.response?.data?.message || 'Failed to submit deposit');
     } finally {
@@ -65,8 +74,8 @@ const ManualDeposit = () => {
           <p style={{ fontSize: '14px', textAlign: 'center' }}>1. Scan the QR code or pay to the UPI ID below:</p>
           
           <img 
-            src="/qr.png" 
-            alt="Payment QR Code" 
+            src="/upi-qr.jpeg" 
+            alt="UPI QR Code" 
             style={{ width: '150px', height: '150px', borderRadius: '10px', objectFit: 'cover', border: '2px solid var(--primary-color)' }}
             onError={(e) => { e.target.style.display = 'none'; }}
           />
@@ -76,7 +85,7 @@ const ManualDeposit = () => {
           </div>
         </div>
         
-        <p style={{ fontSize: '14px', textAlign: 'center' }}>2. Enter the amount paid, UTR number, and upload screenshot link.</p>
+        <p style={{ fontSize: '14px', textAlign: 'center' }}>2. Enter the amount paid, UTR number, and upload payment screenshot.</p>
       </div>
 
       {successMsg && (
@@ -117,14 +126,14 @@ const ManualDeposit = () => {
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Screenshot Link</label>
+          <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Payment Screenshot</label>
           <input 
-            type="text" 
+            id="screenshot-upload"
+            type="file" 
+            accept="image/*"
             className="input-field" 
-            placeholder="Image URL (e.g., Imgur link)"
-            value={screenshot}
-            onChange={(e) => setScreenshot(e.target.value)}
-            style={{ width: '100%' }}
+            onChange={(e) => setScreenshot(e.target.files[0])}
+            style={{ width: '100%', padding: '10px' }}
           />
         </div>
 

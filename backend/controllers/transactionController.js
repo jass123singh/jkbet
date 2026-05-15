@@ -4,8 +4,10 @@ const User = require("../models/User");
 // Create manual deposit
 exports.createManualDeposit = async (req, res) => {
     try {
-        const { amount, utr, screenshot } = req.body;
+        const { amount, utr } = req.body;
         const userId = req.user.id;
+        
+        const screenshot = req.file ? `/uploads/payment-screenshots/${req.file.filename}` : null;
 
         if (!amount || !utr || !screenshot) {
             return res.status(400).json({ message: "Amount, UTR, and screenshot are required" });

@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 const transactionController = require("../controllers/transactionController");
 const authMiddleware = require("../middleware/authMiddleware");
+const upload = require("../middleware/uploadMiddleware");
 
 // @route   POST /api/transactions/manual-deposit
 // @desc    Submit a manual deposit
 // @access  Private
-router.post("/manual-deposit", authMiddleware, transactionController.createManualDeposit);
+router.post("/manual-deposit", authMiddleware, upload.single('screenshot'), transactionController.createManualDeposit);
 
 // @route   GET /api/transactions/manual-deposits
 // @desc    Get all manual deposits (Admin)
