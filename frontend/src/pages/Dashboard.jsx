@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import BettingSystem from '../components/BettingSystem';
+import PlinkoGame from '../components/PlinkoGame';
 import GameCard from '../components/GameCard';
 import api from '../services/api';
 import { History, Trophy, TrendingUp } from 'lucide-react';
@@ -78,6 +79,10 @@ const Dashboard = () => {
             <BettingSystem onBetPlaced={handleBetPlaced} />
           </section>
 
+          <section id="plinko-section">
+            <PlinkoGame onBetPlaced={handleBetPlaced} />
+          </section>
+
           <section id="games-section">
             <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', fontSize: '20px' }}>
               <Trophy color="var(--primary-color)" size={20} /> Featured Games
@@ -87,7 +92,13 @@ const Dashboard = () => {
                 title="Number Predictor" 
                 imageColor="rgba(112, 0, 255, 0.4)" 
                 description="Predict numbers and win 9x!"
-                onPlay={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onPlay={() => window.scrollTo({ top: document.getElementById('betting-section')?.offsetTop - 80 || 0, behavior: 'smooth' })}
+              />
+              <GameCard 
+                title="Plinko" 
+                imageColor="rgba(250, 204, 21, 0.4)" 
+                description="Drop the ball and win big multipliers!"
+                onPlay={() => window.scrollTo({ top: document.getElementById('plinko-section')?.offsetTop - 80 || 0, behavior: 'smooth' })}
               />
               <GameCard 
                 title="Mines" 
@@ -119,7 +130,9 @@ const Dashboard = () => {
                       borderLeft: `4px solid ${bet.result === 'won' ? 'var(--success)' : 'var(--danger)'}`
                     }}>
                       <div>
-                        <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{bet.numbers?.join(', ')}</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
+                          {bet.gameType === 'plinko' ? `Plinko (${bet.mode})` : bet.numbers?.join(', ')}
+                        </div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>₹{bet.amount}</div>
                       </div>
                       <div style={{ textAlign: 'right' }}>

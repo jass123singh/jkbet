@@ -224,17 +224,24 @@ const Wallet = () => {
               
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
                 {/* QR Image updated per requirements */}
-                <div style={{ background: 'white', padding: '10px', borderRadius: '16px' }}>
+                <div style={{ background: 'white', padding: '10px', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <img 
                     src="/upi-qr.jpeg" 
                     alt="UPI QR" 
+                    width="220"
                     style={{ 
-                      width: '200px', 
-                      height: '200px', 
                       objectFit: 'contain',
-                      display: 'block'
+                      display: 'block',
+                      margin: '0 auto'
+                    }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      document.getElementById('qr-fallback').style.display = 'block';
                     }}
                   />
+                  <div id="qr-fallback" style={{ display: 'none', color: '#ef4444', fontSize: '12px', marginTop: '10px', textAlign: 'center' }}>
+                    If QR does not load, use UPI ID: 6280696354@ptyes
+                  </div>
                 </div>
                 
                 <div style={{ textAlign: 'center' }}>

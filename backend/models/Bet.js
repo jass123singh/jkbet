@@ -8,10 +8,19 @@ const BetSchema = new mongoose.Schema({
         required: true
     },
 
+    gameType: {
+        type: String,
+        default: "numberPredictor"
+    },
+
+    mode: {
+        type: String
+    },
+
     numbers: {
 
         type: [Number],
-        required: true
+        default: []
     },
 
     amount: {
