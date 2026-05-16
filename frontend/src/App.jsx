@@ -27,7 +27,7 @@ function App() {
         } 
       />
       <Route 
-        path="/game/number-predictor" 
+        path="/games/number-predictor" 
         element={
           <ProtectedRoute>
             <GameNumberPredictor />
@@ -35,7 +35,7 @@ function App() {
         } 
       />
       <Route 
-        path="/game/plinko" 
+        path="/games/plinko" 
         element={
           <ProtectedRoute>
             <GamePlinko />

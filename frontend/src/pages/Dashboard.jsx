@@ -84,19 +84,25 @@ const Dashboard = () => {
                 title="Number Predictor" 
                 imageColor="rgba(112, 0, 255, 0.4)" 
                 description="Predict numbers and win 9x!"
-                onPlay={() => navigate('/game/number-predictor')}
+                onPlay={() => navigate('/games/number-predictor')}
               />
               <GameCard 
                 title="Plinko" 
                 imageColor="rgba(250, 204, 21, 0.4)" 
                 description="Drop the ball and win big multipliers!"
-                onPlay={() => navigate('/game/plinko')}
+                onPlay={() => navigate('/games/plinko')}
+              />
+              <GameCard 
+                title="Keno" 
+                imageColor="rgba(236, 72, 153, 0.4)" 
+                description="Pick your lucky numbers."
+                onPlay={() => showMessage('This game is coming soon', 'error')}
               />
               <GameCard 
                 title="Mines" 
                 imageColor="rgba(0, 240, 255, 0.4)" 
                 description="Avoid the mines and cash out."
-                onPlay={() => showMessage('Coming Soon!', 'success')}
+                onPlay={() => showMessage('This game is coming soon', 'error')}
               />
             </div>
           </section>
