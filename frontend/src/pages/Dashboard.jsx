@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
-import BettingSystem from '../components/BettingSystem';
-import PlinkoGame from '../components/PlinkoGame';
 import GameCard from '../components/GameCard';
 import api from '../services/api';
+import { useNavigate } from 'react-router-dom';
 import { History, Trophy, TrendingUp } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, refreshUser } = useContext(AuthContext);
   const [betHistory, setBetHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("success");
@@ -74,14 +74,6 @@ const Dashboard = () => {
 
         {/* Stack everything vertically for mobile */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-          
-          <section id="betting-section">
-            <BettingSystem onBetPlaced={handleBetPlaced} />
-          </section>
-
-          <section id="plinko-section">
-            <PlinkoGame onBetPlaced={handleBetPlaced} />
-          </section>
 
           <section id="games-section">
             <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', fontSize: '20px' }}>
@@ -92,13 +84,13 @@ const Dashboard = () => {
                 title="Number Predictor" 
                 imageColor="rgba(112, 0, 255, 0.4)" 
                 description="Predict numbers and win 9x!"
-                onPlay={() => window.scrollTo({ top: document.getElementById('betting-section')?.offsetTop - 80 || 0, behavior: 'smooth' })}
+                onPlay={() => navigate('/game/number-predictor')}
               />
               <GameCard 
                 title="Plinko" 
                 imageColor="rgba(250, 204, 21, 0.4)" 
                 description="Drop the ball and win big multipliers!"
-                onPlay={() => window.scrollTo({ top: document.getElementById('plinko-section')?.offsetTop - 80 || 0, behavior: 'smooth' })}
+                onPlay={() => navigate('/game/plinko')}
               />
               <GameCard 
                 title="Mines" 
