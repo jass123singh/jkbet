@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import BettingSystem from '../components/BettingSystem';
-import WalletSystem from '../components/WalletSystem';
 import GameCard from '../components/GameCard';
 import api from '../services/api';
 import { History, Trophy, TrendingUp } from 'lucide-react';
@@ -77,10 +76,6 @@ const Dashboard = () => {
           
           <section id="betting-section">
             <BettingSystem onBetPlaced={handleBetPlaced} />
-          </section>
-
-          <section id="wallet-section">
-            <WalletSystem />
           </section>
 
           <section id="games-section">

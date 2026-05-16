@@ -8,7 +8,7 @@ import Transactions from './pages/Transactions';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminManualDeposits from './pages/AdminManualDeposits';
 import AdminManualWithdraws from './pages/AdminManualWithdraws';
-import AddMoney from './pages/AddMoney';
+import Wallet from './pages/Wallet';
 
 function App() {
   return (
@@ -41,6 +41,14 @@ function App() {
         } 
       />
       <Route 
+        path="/wallet" 
+        element={
+          <ProtectedRoute>
+            <Wallet />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
         path="/admin/manual-deposits" 
         element={
           <ProtectedRoute>
@@ -53,14 +61,6 @@ function App() {
         element={
           <ProtectedRoute>
             <AdminManualWithdraws />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/add-money" 
-        element={
-          <ProtectedRoute>
-            <AddMoney />
           </ProtectedRoute>
         } 
       />

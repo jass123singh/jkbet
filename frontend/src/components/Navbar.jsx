@@ -48,14 +48,8 @@ const Navbar = () => {
         </div>
         
         <div 
-          className="nav-item"
-          onClick={() => {
-            // Scroll to wallet section on dashboard, or navigate to wallet page if it existed
-            if (location.pathname !== '/dashboard') {
-              navigate('/dashboard');
-            }
-            window.scrollTo({ top: document.getElementById('wallet-section')?.offsetTop - 80 || 0, behavior: 'smooth' });
-          }}
+          className={`nav-item ${location.pathname === '/wallet' ? 'active' : ''}`}
+          onClick={() => navigate('/wallet')}
         >
           <Wallet size={24} />
           <span>Wallet</span>
