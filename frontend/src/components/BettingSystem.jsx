@@ -192,7 +192,7 @@ const BettingSystem = ({ onBetPlaced }) => {
         <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
           <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Multiplier</span>
           <span style={{ fontWeight: 'bold', color: 'var(--secondary-color)', fontSize: '16px' }}>
-            {selectedNumbers.length === 1 ? '9x' : selectedNumbers.length === 2 ? '4.5x' : selectedNumbers.length === 3 ? '3x' : '0x'}
+            {selectedNumbers.length === 1 ? '2x' : selectedNumbers.length === 2 ? '4x' : selectedNumbers.length === 3 ? '10x' : '0x'}
           </span>
         </div>
       </div>
