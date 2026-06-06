@@ -1,30 +1,17 @@
 const Transaction = require("../models/Transaction");
 const User = require("../models/User");
 
-// Create manual deposit
 exports.createManualDeposit = async (req, res) => {
     try {
-        const { amount, utr } = req.body;
-        const userId = req.user.id;
-        
-        const screenshot = req.file ? `/uploads/payment-screenshots/${req.file.filename}` : null;
+        const { amount, utr, screenshot } = req.body;
 
         if (!amount || !utr || !screenshot) {
             return res.status(400).json({ message: "Amount, UTR, and screenshot are required" });
         }
 
-        if (Number(amount) < 200) {
-            return res.status(400).json({ message: "Minimum deposit amount is ₹200" });
-        }
-
-        const existingTransaction = await Transaction.findOne({ utr });
-        if (existingTransaction) {
-            return res.status(400).json({ message: "UTR already exists" });
-        }
-
         const transaction = new Transaction({
-            userId,
-            amount,
+            userId: req.user.id,
+            amount: Number(amount),
             type: "deposit",
             utr,
             screenshot,
@@ -32,39 +19,71 @@ exports.createManualDeposit = async (req, res) => {
         });
 
         await transaction.save();
-        res.status(201).json({ message: "Deposit request submitted successfully", transaction });
+
+        res.status(201).json({
+            message: "Payment submitted. Waiting for admin approval.",
+            transaction
+        });
+
     } catch (error) {
+        if (error.code === 11000 && error.keyPattern && error.keyPattern.utr) {
+            return res.status(400).json({ message: "A deposit with this UTR already exists." });
+        }
         console.error(error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-// Get all manual deposits (Admin)
 exports.getManualDeposits = async (req, res) => {
     try {
-        // Fetch all deposits (can filter by status if needed, but requirements ask for pending or all)
-        const deposits = await Transaction.find({ type: "deposit", utr: { $exists: true, $ne: null } }).sort({ createdAt: -1 });
+        const transactions = await Transaction.aggregate([
+            { 
+                $match: { 
+                    type: "deposit",
+                    utr: { $exists: true, $ne: null }
+                } 
+            },
+            { $sort: { createdAt: -1 } },
+            {
+                $addFields: {
+                    userObjId: { $toObjectId: "$userId" }
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "userObjId",
+                    foreignField: "_id",
+                    as: "userDetails"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userDetails",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    userObjId: 0,
+                    "userDetails.password": 0,
+                    "userDetails.balance": 0
+                }
+            }
+        ]);
 
-        // Populate user details manually since userId is a String and not an ObjectId ref in the schema
-        const depositsWithUser = await Promise.all(deposits.map(async (deposit) => {
-            const user = await User.findById(deposit.userId).select('name email');
-            return {
-                ...deposit.toObject(),
-                user: user || null
-            };
-        }));
+        res.json(transactions);
 
-        res.status(200).json(depositsWithUser);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-// Approve manual deposit (Admin)
 exports.approveManualDeposit = async (req, res) => {
     try {
         const { id } = req.params;
+
         const transaction = await Transaction.findById(id);
 
         if (!transaction) {
@@ -72,131 +91,47 @@ exports.approveManualDeposit = async (req, res) => {
         }
 
         if (transaction.status !== "pending") {
-            return res.status(400).json({ message: "Transaction is already processed" });
+            return res.status(400).json({ message: "Transaction is not pending" });
         }
 
         transaction.status = "success";
         await transaction.save();
 
-        // Increment user balance
-        const updatedUser = await User.findByIdAndUpdate(
-            transaction.userId, 
-            { $inc: { balance: Number(transaction.amount) } },
-            { new: true }
-        );
-
-        if (!updatedUser) {
-            transaction.status = "pending"; // rollback
-            await transaction.save();
-            return res.status(404).json({ message: "User not found to update balance" });
-        }
-
-        res.status(200).json({ 
-            message: "Deposit approved successfully", 
-            transaction,
-            newBalance: updatedUser.balance 
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
-    }
-};
-
-// Reject manual deposit (Admin)
-exports.rejectManualDeposit = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const transaction = await Transaction.findById(id);
-
-        if (!transaction) {
-            return res.status(404).json({ message: "Transaction not found" });
-        }
-
-        if (transaction.status !== "pending") {
-            return res.status(400).json({ message: "Transaction is already processed" });
-        }
-
-        transaction.status = "rejected";
-        await transaction.save();
-
-        res.status(200).json({ message: "Deposit rejected successfully", transaction });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
-    }
-};
-
-// Get all manual withdraws (Admin)
-exports.getManualWithdraws = async (req, res) => {
-    try {
-        const withdraws = await Transaction.find({ type: "withdraw" }).sort({ createdAt: -1 });
-
-        // Populate user details
-        const withdrawsWithUser = await Promise.all(withdraws.map(async (w) => {
-            const user = await User.findById(w.userId).select('name email');
-            return {
-                ...w.toObject(),
-                user: user || null
-            };
-        }));
-
-        res.status(200).json(withdrawsWithUser);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
-    }
-};
-
-// Approve manual withdraw (Admin)
-exports.approveManualWithdraw = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const transaction = await Transaction.findById(id);
-
-        if (!transaction) {
-            return res.status(404).json({ message: "Transaction not found" });
-        }
-
-        if (transaction.status !== "pending") {
-            return res.status(400).json({ message: "Transaction is already processed" });
-        }
-
-        transaction.status = "success";
-        await transaction.save();
-
-        res.status(200).json({ message: "Withdraw approved successfully", transaction });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
-    }
-};
-
-// Reject manual withdraw (Admin)
-exports.rejectManualWithdraw = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const transaction = await Transaction.findById(id);
-
-        if (!transaction) {
-            return res.status(404).json({ message: "Transaction not found" });
-        }
-
-        if (transaction.status !== "pending") {
-            return res.status(400).json({ message: "Transaction is already processed" });
-        }
-
-        transaction.status = "rejected";
-        await transaction.save();
-
-        // Refund user balance
+        // Increment user balance (Add Coins)
         await User.findByIdAndUpdate(
             transaction.userId,
             { $inc: { balance: Number(transaction.amount) } }
         );
 
-        res.status(200).json({ message: "Withdraw rejected and refunded successfully", transaction });
+        res.json({ message: "Deposit approved and coins added successfully", transaction });
+
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+exports.rejectManualDeposit = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const transaction = await Transaction.findById(id);
+
+        if (!transaction) {
+            return res.status(404).json({ message: "Transaction not found" });
+        }
+
+        if (transaction.status !== "pending") {
+            return res.status(400).json({ message: "Transaction is not pending" });
+        }
+
+        transaction.status = "rejected";
+        await transaction.save();
+
+        res.json({ message: "Deposit rejected", transaction });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };

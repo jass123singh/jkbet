@@ -18,10 +18,7 @@ app.use(cors({
     credentials: true
 }));
 
-const path = require('path');
-
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get("/", (req, res) => {
 
@@ -34,11 +31,11 @@ require("./routes/authRoutes"));
 app.use("/api/payment",
 require("./routes/paymentRoutes"));
 
-app.use("/api/bet",
-require("./routes/betRoutes"));
-
 app.use("/api/transactions",
 require("./routes/transactionRoutes"));
+
+app.use("/api/bet",
+require("./routes/betRoutes"));
 
 const PORT = process.env.PORT || 5000;
 

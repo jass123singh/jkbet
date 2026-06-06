@@ -5,12 +5,9 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Transactions from './pages/Transactions';
-import GameNumberPredictor from './pages/GameNumberPredictor';
-import GamePlinko from './pages/GamePlinko';
 import ProtectedRoute from './components/ProtectedRoute';
-import AdminManualDeposits from './pages/AdminManualDeposits';
-import AdminManualWithdraws from './pages/AdminManualWithdraws';
-import Wallet from './pages/Wallet';
+import ManualDeposit from './components/ManualDeposit';
+import AdminPanel from './pages/AdminPanel';
 
 function App() {
   return (
@@ -23,22 +20,6 @@ function App() {
         element={
           <ProtectedRoute>
             <Dashboard />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/games/number-predictor" 
-        element={
-          <ProtectedRoute>
-            <GameNumberPredictor />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/games/plinko" 
-        element={
-          <ProtectedRoute>
-            <GamePlinko />
           </ProtectedRoute>
         } 
       />
@@ -59,26 +40,18 @@ function App() {
         } 
       />
       <Route 
-        path="/wallet" 
+        path="/add-money" 
         element={
           <ProtectedRoute>
-            <Wallet />
+            <ManualDeposit />
           </ProtectedRoute>
         } 
       />
       <Route 
-        path="/admin/manual-deposits" 
+        path="/admin" 
         element={
           <ProtectedRoute>
-            <AdminManualDeposits />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/admin/manual-withdraws" 
-        element={
-          <ProtectedRoute>
-            <AdminManualWithdraws />
+            <AdminPanel />
           </ProtectedRoute>
         } 
       />
