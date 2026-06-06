@@ -2,10 +2,11 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
+const upload = require("../middleware/uploadMiddleware");
 const transactionController = require("../controllers/transactionController");
 
 // User routes
-router.post("/manual-deposit", authMiddleware, transactionController.createManualDeposit);
+router.post("/manual-deposit", authMiddleware, upload.single('screenshot'), transactionController.createManualDeposit);
 
 // Admin routes
 router.get("/manual-deposits", authMiddleware, adminMiddleware, transactionController.getManualDeposits);
