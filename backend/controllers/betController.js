@@ -52,7 +52,7 @@ async (req, res) => {
 
         if (matched) {
             if (numbers.length === 1) {
-                multiplier = 10;
+                multiplier = 2;
             } else if (numbers.length === 2) {
                 multiplier = 4;
             } else if (numbers.length === 3) {
