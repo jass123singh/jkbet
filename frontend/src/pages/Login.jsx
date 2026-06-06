@@ -26,7 +26,11 @@ const Login = () => {
     setLoading(false);
 
     if (result.success) {
-      navigate('/dashboard');
+      if (email === 'sjasdaman112402@gmail.com') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } else {
       setError(result.error);
     }

@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Transaction = require("../models/Transaction");
 
 exports.createOrder = async (req, res) => {
 
@@ -51,44 +52,46 @@ exports.deposit = async (req, res) => {
 };
 
 exports.withdraw = async (req, res) => {
+
     try {
-        const { amount, accountHolderName, accountNumber, ifscCode } = req.body;
 
-        if (!amount || !accountHolderName || !accountNumber || !ifscCode) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
+        const { amount } = req.body;
 
-        const user = await User.findById(req.user.id);
+        const user =
+        await User.findById(req.user.id);
+
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+
+            return res.status(404).json({
+
+                message: "User not found"
+            });
         }
 
         if (user.balance < Number(amount)) {
-            return res.status(400).json({ message: "Insufficient balance" });
+
+            return res.status(400).json({
+
+                message: "Insufficient balance"
+            });
         }
 
-        // Deduct balance
-        const updatedUser = await User.findByIdAndUpdate(
-            req.user.id,
-            { $inc: { balance: -Number(amount) } },
-            { new: true }
-        );
+        user.balance -= Number(amount);
 
-        // Create transaction
-        const Transaction = require("../models/Transaction");
-        await Transaction.create({
+        await user.save();
+
+        const transaction = new Transaction({
             userId: req.user.id,
             amount: Number(amount),
             type: "withdraw",
-            status: "pending",
-            accountHolderName,
-            accountNumber,
-            ifscCode
+            status: "pending"
         });
 
+        await transaction.save();
+
         res.json({
-            newBalance: updatedUser.balance,
-            message: "Withdrawal request submitted successfully"
+            newBalance: user.balance,
+            message: "Withdrawal request submitted for approval"
         });
 
     } catch (error) {

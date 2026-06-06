@@ -135,3 +135,76 @@ exports.rejectManualDeposit = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
+exports.getWithdrawals = async (req, res) => {
+    try {
+        const transactions = await Transaction.aggregate([
+            { $match: { type: "withdraw" } },
+            { $sort: { createdAt: -1 } },
+            { $addFields: { userObjId: { $toObjectId: "$userId" } } },
+            { $lookup: { from: "users", localField: "userObjId", foreignField: "_id", as: "userDetails" } },
+            { $unwind: { path: "$userDetails", preserveNullAndEmptyArrays: true } },
+            { $project: { userObjId: 0, "userDetails.password": 0, "userDetails.balance": 0 } }
+        ]);
+        res.json(transactions);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+exports.approveWithdrawal = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const transaction = await Transaction.findById(id);
+        if (!transaction || transaction.status !== "pending" || transaction.type !== "withdraw") {
+            return res.status(400).json({ message: "Invalid transaction" });
+        }
+        transaction.status = "success";
+        await transaction.save();
+        res.json({ message: "Withdrawal approved", transaction });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+exports.rejectWithdrawal = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const transaction = await Transaction.findById(id);
+        if (!transaction || transaction.status !== "pending" || transaction.type !== "withdraw") {
+            return res.status(400).json({ message: "Invalid transaction" });
+        }
+        transaction.status = "rejected";
+        await transaction.save();
+        
+        // Refund user balance
+        await User.findByIdAndUpdate(transaction.userId, { $inc: { balance: Number(transaction.amount) } });
+        res.json({ message: "Withdrawal rejected and refunded", transaction });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+exports.adminDirectDeposit = async (req, res) => {
+    try {
+        const { email, amount } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        user.balance += Number(amount);
+        await user.save();
+
+        const transaction = new Transaction({
+            userId: user._id.toString(),
+            amount: Number(amount),
+            type: "deposit",
+            status: "success",
+            utr: "ADMIN_DIRECT_" + Date.now()
+        });
+        await transaction.save();
+
+        res.json({ message: `Successfully added ${amount} coins to ${email}`, transaction });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
