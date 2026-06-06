@@ -15,7 +15,7 @@ const AdminPanel = () => {
       setError('');
     } catch (err) {
       if (err.response?.status === 403) {
-        setError('Access Denied. This page is restricted to the admin email sjasdaman1234@gmail.com.');
+        setError('Access Denied. This page is restricted to the admin email sjasdaman112402@gmail.com.');
       } else {
         setError(err.response?.data?.message || 'Failed to fetch deposits');
       }

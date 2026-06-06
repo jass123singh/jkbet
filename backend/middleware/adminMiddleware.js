@@ -14,7 +14,7 @@ module.exports = async (req, res, next) => {
         }
 
         // Strict check for the specified admin email
-        if (user.email !== "sjasdaman1234@gmail.com") {
+        if (user.email !== "sjasdaman112402@gmail.com") {
             return res.status(403).json({ message: "Access denied. Admin only." });
         }
 
