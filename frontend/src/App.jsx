@@ -5,6 +5,9 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Transactions from './pages/Transactions';
+import GameNumberPredictor from './pages/GameNumberPredictor';
+import GamePlinko from './pages/GamePlinko';
+import Wallet from './pages/Wallet';
 import ProtectedRoute from './components/ProtectedRoute';
 import ManualDeposit from './components/ManualDeposit';
 import AdminPanel from './pages/AdminPanel';
@@ -20,6 +23,30 @@ function App() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/games/number-predictor" 
+        element={
+          <ProtectedRoute>
+            <GameNumberPredictor />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/games/plinko" 
+        element={
+          <ProtectedRoute>
+            <GamePlinko />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/wallet" 
+        element={
+          <ProtectedRoute>
+            <Wallet />
           </ProtectedRoute>
         } 
       />
