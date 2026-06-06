@@ -22,7 +22,7 @@ const ManualDeposit = () => {
 
     setLoading(true);
     try {
-      const response = await api.post(`/api/transactions/manual-deposit`, {
+      const response = await api.post(`/transactions/manual-deposit`, {
         amount,
         utr,
         screenshot

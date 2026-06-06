@@ -25,7 +25,7 @@ const AdminPanel = () => {
 
   const fetchDeposits = async () => {
     try {
-      const response = await api.get(`/api/transactions/manual-deposits`);
+      const response = await api.get(`/transactions/manual-deposits`);
       setDeposits(response.data);
       setError('');
     } catch (err) {
@@ -39,7 +39,7 @@ const AdminPanel = () => {
 
   const fetchWithdrawals = async () => {
     try {
-      const response = await api.get(`/api/transactions/withdrawals`);
+      const response = await api.get(`/transactions/withdrawals`);
       setWithdrawals(response.data);
     } catch (err) {
       console.error(err);
@@ -61,7 +61,7 @@ const AdminPanel = () => {
     
     setActionLoading(true);
     try {
-      await api.put(`/api/transactions/manual-deposit/${action}/${id}`, {});
+      await api.put(`/transactions/manual-deposit/${action}/${id}`, {});
       await fetchDeposits();
     } catch (err) {
       alert(err.response?.data?.message || `Failed to ${action} deposit`);
@@ -75,7 +75,7 @@ const AdminPanel = () => {
     
     setActionLoading(true);
     try {
-      await api.put(`/api/transactions/withdrawal/${action}/${id}`, {});
+      await api.put(`/transactions/withdrawal/${action}/${id}`, {});
       await fetchWithdrawals();
     } catch (err) {
       alert(err.response?.data?.message || `Failed to ${action} withdrawal`);
@@ -91,7 +91,7 @@ const AdminPanel = () => {
     
     setActionLoading(true);
     try {
-      const response = await api.post(`/api/transactions/admin-deposit`, {
+      const response = await api.post(`/transactions/admin-deposit`, {
         email: directEmail,
         amount: directAmount
       });
